@@ -2,65 +2,80 @@ import sqlite3
 from sqlite3 import Error
 
 
-def create_connection(db_file):
-    """
-    Create connection to sqlite db from db file
-    :param db_file:
-    :return sqlite connection | None:
-    """
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-        print(sqlite3.version)
-    except Error as e:
-        print(e)
-    finally:
-        return conn
-
-
-def insert_movie(conn, movie):
-    """
-    Insert a movie record
-    :param conn:
-    :param movie:
-    :return id of the movie:
-    """
-
-    sql = '''
-        insert into movies(year, title, gross, budget, director_id)
-        values (?,?,?,?,?)
-    '''
-
-    curr = conn.cursor()
-    curr.execute(sql, movie)
-    conn.commit()
-    return curr.lastrowid
-
-
-def insert_director(conn, director):
-    sql = '''
-            insert into directors(first_name, last_name, movies_made, age)
-            values (?,?,?,?)
-        '''
-
-    curr = conn.cursor()
-    curr.execute(sql, director)
-    conn.commit()
-    return curr.lastrowid
-
-
+# For testing purposes
+# Main is simulating the parser team using the data returned by requests to the interface
 def main():
-    conn = create_connection(r"IM.db")
+    # parser team makes commands in the form of statements asking about the data
+    # db team maps the command to the sql equivalent, runs the query and returns the data to the parser team
+    # language is subject to change this is just an example
+    interface = Interface(r"IM.db")
+    print("\n".join(["".join(str(x)) for x in interface.select("get highest grossing movie for all directors")]))
+    print("*"*80)
+    print("\n".join(["".join(str(x)) for x in interface.select("get total budget for all directors")]))
+    print("*"*80)
+    print("\n".join(["".join(str(x)) for x in interface.select("get all movies by director", id=3)]))
+    interface.close_connection()
 
-    movie = (2022, "New Movie", 1000000, 10000, 1)
-    movie_id = insert_movie(conn, movie)
-    print("New movie id:", movie_id)
 
-    director = ("Jared", "DiScipio", 5, 20)
-    director_id = insert_director(conn, director)
-    print("New director id:", director_id)
+class Interface:
+    DEBUG = False
+    conn = None
 
-    conn.close()
+    def __init__(self, db_file):
+        try:
+            self.conn = sqlite3.connect(db_file)
+            if self.DEBUG:
+                print(sqlite3.version)
+        except Error as e:
+            print(e)
+
+    def select(self, command, **kwargs):
+        """
+        Provide command to select a sql statement and provide named kwargs (dictionary) for additional query params
+        Uses prepared statements to prevent injection
+        :param command:
+        :param kwargs:
+        :exception null_op:
+        :return:
+        """
+        sql = None
+        if command == "get highest grossing movie for all directors":
+            sql = """
+                select directors.id, first_name, last_name, title, max(gross) from directors
+                join movies on directors.id = movies.director_id
+                group by first_name, last_name
+                order by max(gross)
+            """
+        elif command == "get total budget for all directors":
+            sql = """
+                select first_name, last_name, sum(budget) as 'Total Budget'
+                from directors
+                join movies on directors.id = movies.director_id
+                group by first_name, last_name
+                order by sum(budget) desc
+            """
+        elif command == "get all movies by director":
+            sql = """
+                select title from movies
+                join directors on movies.director_id = ?
+                group by title
+            """
+            curr = self.conn.cursor()
+            curr.execute(sql, (str(kwargs["id"])))
+            return curr.fetchall()
+
+        if command is not None:
+            curr = self.conn.cursor()
+            curr.execute(sql)
+            return curr.fetchall()
+        else:
+            raise Exception("Invalid operation!")
+
+    def toggle_debug(self):
+        self.DEBUG = not self.DEBUG
+
+    def close_connection(self):
+        self.conn.close()
 
 
 if __name__ == "__main__":
