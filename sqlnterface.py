@@ -1,5 +1,6 @@
 import sqlite3
 from sqlite3 import Error
+from enum import Enum
 
 
 # For testing purposes
@@ -15,7 +16,7 @@ def main():
     #print("*"*80)
     #print("\n".join(["".join(str(x)) for x in interface.select("get all movies by director", id=3)]))
     #print("*"*80)
-    print("\n".join(["".join(str(x)) for x in interface.select("net profit", director="Francis Ford Coppola")]))
+    print("\n".join(["".join(str(x)) for x in interface.select("net profit", director="Bong Ho")]))
     interface.close_connection()
 
 
@@ -75,10 +76,10 @@ class Interface:
                 curr = self.conn.cursor()
                 name = kwargs["director"].split(" ")
                 if len(name) > 2:
-                    name = [" ".join([name[0], name[1]]).strip(), name[2]]  # strip may be redundant
+                    name = [" ".join([name[0], name[1]]).strip(), name[2]]
                 else:
                     name = [name[0], name[1]]
-                curr.execute(sql, ('Francis Ford', 'Coppola'))
+                curr.execute(sql, (name[0], name[1]))
                 return curr.fetchall()
 
         if command is not None:
@@ -93,6 +94,7 @@ class Interface:
 
     def close_connection(self):
         self.conn.close()
+
 
 
 if __name__ == "__main__":
