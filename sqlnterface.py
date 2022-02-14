@@ -41,7 +41,7 @@ class Interface:
         :exception null_op:
         :return:
         """
-        print(command, kwargs["keywords"], kwargs["name"])
+        print(command, kwargs)
         sql = None
 
         if command.command == "net":
@@ -88,6 +88,21 @@ class Interface:
             name = self.split_name(kwargs["name"])
             curr.execute(sql, [name[0], name[1]])
             return curr.fetchall()
+        elif command.command == "how many":
+            if kwargs["keywords"][0] == "directors":
+                sql = """
+                    select count(first_name) from directors
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql)
+                return curr.fetchall()
+            elif kwargs["keywords"][0] == "movies":
+                sql = """
+                    select count(title) from movies
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql)
+                return curr.fetchall()
 
     def split_name(self, inpt):
         name = inpt.split(" ")
