@@ -82,7 +82,7 @@ class Interface:
                     """
                 curr = self.conn.cursor()
                 print("The kwargs name: ", kwargs["name"])
-                curr.execute(sql, kwargs["name"])
+                curr.execute(sql, [kwargs["name"]])
                 return curr.fetchall()
         elif command.command == "how many made by":
             pass
