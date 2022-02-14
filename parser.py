@@ -59,6 +59,7 @@ class Parser:
                     if arg.type == ArgsType.Date:
                         # parse date
                         print("Parse Date...")
+                        command_data["date"] = "June 10 1997"
                         pass
                     elif arg.type == ArgsType.Name:
                         # parse director and movie name

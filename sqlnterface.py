@@ -84,6 +84,8 @@ class Interface:
                 print("The kwargs name: ", kwargs["name"])
                 curr.execute(sql, kwargs["name"])
                 return curr.fetchall()
+        elif command.command == "how many made by":
+            pass
 
     def toggle_debug(self):
         self.DEBUG = not self.DEBUG
