@@ -3,23 +3,6 @@ from sqlite3 import Error
 from CommandTypes import ArgsType, Arg, Group, BaseCommand
 
 
-# For testing purposes
-# Main is simulating the parser team using the data returned by requests to the interface
-def main():
-    # parser team makes commands in the form of statements asking about the data
-    # db team maps the command to the sql equivalent, runs the query and returns the data to the parser team
-    # language is subject to change this is just an example
-    interface = Interface(r"IM.db")
-    #print("\n".join(["".join(str(x)) for x in interface.select("get highest grossing movie for all directors")]))
-    #print("*"*80)
-    #print("\n".join(["".join(str(x)) for x in interface.select("get total budget for all directors")]))
-    #print("*"*80)
-    #print("\n".join(["".join(str(x)) for x in interface.select("get all movies by director", id=3)]))
-    #print("*"*80)
-    print("\n".join(["".join(str(x)) for x in interface.select("net profit", director="Bong Ho")]))
-    interface.close_connection()
-
-
 class Interface:
     DEBUG = False
     conn = None
@@ -103,6 +86,35 @@ class Interface:
                 curr = self.conn.cursor()
                 curr.execute(sql)
                 return curr.fetchall()
+        elif command.command == "which movies by":
+            sql = """
+                select title from movies 
+                join directors on movies.director_id = movies.id
+                where first_name = ? and last_name = ?
+            """
+            curr = self.conn.cursor()
+            name = self.split_name(kwargs["name"])
+            curr.execute(sql, [name[0], name[1]])
+            return curr.fetchall()
+        elif command.command == "oldest":
+            if kwargs["keywords"][0] == "director":
+                sql = """
+                    select first_name, last_name from directors
+                    order by age desc
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql)
+                return curr.fetchall()[0]
+            elif kwargs["keywords"][0] == "movie":
+                sql = """
+                    select title from movies
+                    order by year asc
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql)
+                return curr.fetchall()[0]
+
+        return None
 
     def split_name(self, inpt):
         name = inpt.split(" ")
@@ -119,7 +131,3 @@ class Interface:
 
     def close_connection(self):
         self.conn.close()
-
-
-if __name__ == "__main__":
-    main()
