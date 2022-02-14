@@ -60,13 +60,7 @@ class Interface:
                         where first_name = ? and last_name = ?
                     """
                 curr = self.conn.cursor()
-                name = kwargs["name"].split(" ")
-                if len(name) > 2:
-                    name = [" ".join([name[0], name[1]]).strip(), name[2]]
-                elif len(name) == 2:
-                    name = [name[0], name[1]]
-                else:
-                    name = name[0]
+                name = self.split_name(kwargs["name"])
                 curr.execute(sql, (name[0], name[1]))
                 return curr.fetchall()
             elif kwargs["keywords"][1] == "movie":
@@ -85,7 +79,25 @@ class Interface:
                 curr.execute(sql, [kwargs["name"]])
                 return curr.fetchall()
         elif command.command == "how many made by":
-            pass
+            sql = """
+                select count(title) from movies
+                join directors on movies.director_id = directors.id
+                where first_name = ? and last_name = ?
+            """
+            curr = self.conn.cursor()
+            name = self.split_name(kwargs["name"])
+            curr.execute(sql, [name[0], name[1]])
+            return curr.fetchall()
+
+    def split_name(self, inpt):
+        name = inpt.split(" ")
+        if len(name) > 2:
+            name = [" ".join([name[0], name[1]]).strip(), name[2]]
+        elif len(name) == 2:
+            name = [name[0], name[1]]
+        else:
+            name = name[0]
+        return name
 
     def toggle_debug(self):
         self.DEBUG = not self.DEBUG
