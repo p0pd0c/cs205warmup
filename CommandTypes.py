@@ -3,8 +3,8 @@ from enum import Enum
 
 
 class ArgsType(Enum):
-    Date = 1
-    Name = 2
+    Date = "date"
+    Name = "name"
 
 
 @dataclass

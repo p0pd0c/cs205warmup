@@ -30,49 +30,63 @@ class Parser:
         valid_command = False
         intended_command = None
         command_data = {"keywords": []}
+
+        # Loop through all commands created
         for base_command in self.commands:
+
+            # Match command with base command structure
             if raw_command.startswith(base_command.command):
                 valid_command = True
                 intended_command = base_command
-                print(shlex.split(raw_command[len(base_command.command) + 1: len(raw_command)]))
+                print("Shlex Parse: ", shlex.split(raw_command[len(base_command.command) + 1: len(raw_command)]))
                 words = shlex.split(raw_command[len(base_command.command) + 1: len(raw_command)])
-                # raw_command[len(base_command.command) + 1: len(raw_command)].split(' ')
+
+                print("Words: ", words)
+
+                # Returns None if command does not have enough arguments and keywords
                 if len(words) < len(base_command.groups) + len(base_command.args):
                     print("Incorrect Command")
-                    return
+                    return None
 
+                # Creates boolean array to check keywork positions
                 correct_groups = [False] * len(base_command.groups)
                 for i in range(len(base_command.groups)):
+                    # Group of correct keywords
                     group = base_command.groups[i]
+
                     for keyword in group.keywords:
                         if words[i] == keyword:
                             print("Found keyword:", keyword)
+
+                            # Adds keyword to command_data to send to sql_interface
                             command_data["keywords"].append(keyword)
+
+                            # Sets to true if keyword is in correct position in command
                             correct_groups[i] = True
 
+                # Remove keywords from array, to make it easier to parse multiple arguments
+                words = words[len(base_command.groups):]
+                print(words)
+
+                # Checks all arguments are in the correct order
                 if not (correct_groups == [True] * len(base_command.groups)):
                     print("Incorrect Command")
-                    return
+                    return None
 
                 print("Valid Command...")
-                for arg in base_command.args:
-                    if arg.type == ArgsType.Date:
-                        # parse date
-                        print("Parse Date...")
-                        command_data["date"] = "June 10 1997"
-                        pass
-                    elif arg.type == ArgsType.Name:
-                        # parse director and movie name
-                        print("Parse Name...")
-                        command_data["name"] = "Christopher Nolan"
-                        pass
-        if valid_command:
-            return self.sql_interface.select(intended_command, **command_data)
-        else:
-            print("The command you entered was invalid...")
-            print("The following are valid base commands: ")
-            for cmd in self.commands:
-                print(cmd.command)
+
+                # Parse all arguments using their type given in BaseCommands
+                for index, arg in enumerate(base_command.args):
+                    command_data[arg.type.value] = words[index]
+
+            if valid_command:
+                # Stop after first valid command, since some base commands share words with
+                # others so order is important.
+                print("Command sent to sql with data: ", command_data)
+                return self.sql_interface.select(intended_command, **command_data)
+
+        # No valid command found to match with raw command
+        return None
 
     def get_next_command(self):
         raw_input = input("> ")
@@ -83,13 +97,26 @@ class Parser:
         if result is not None:
             print(result)
 
+        else:
+            print("The command you entered was invalid...")
+            print("The following are valid base commands: ")
+
+            slash = " / "
+            quote = '"'
+            for cmd in self.commands:
+                groups = cmd.groups
+                args = cmd.args
+
+                # Bit of mess but, in one line :), f strings are cool
+                print(f'{cmd.command} {" ".join(f"[ {slash.join(group.keywords)} ]" for group in groups)} {" ".join(f"{quote}{arg.type.value}{quote}" for arg in args)}')
+
 
 def main():
     interface = Interface("IM.db")
-    Parser(interface).process_command('net budget movie "The Shawshank Redemption"')
-    Parser(interface).process_command('how many directors')
-    Parser(interface).process_command('how many made by "Christopher Nolan"')
-    Parser(interface).process_command('movies after "June 10 2010"')
+    Parser(interface).process_command('net movie "The Shawshank Redemption"')
+    # Parser(interface).process_command('how many directors')
+    # Parser(interface).process_command('how many made "Christopher Nolan"')
+    # Parser(interface).process_command('movies after 2010')
 
 
 if __name__ == "__main__":
