@@ -1,6 +1,6 @@
 import sqlite3
 from sqlite3 import Error
-from enum import Enum
+from CommandTypes import ArgsType, Arg, Group, BaseCommand
 
 
 # For testing purposes
@@ -32,7 +32,7 @@ class Interface:
         except Error as e:
             print(e)
 
-    def select(self, command, **kwargs):
+    def select(self, command: BaseCommand, **kwargs):
         """
         Provide command to select a sql statement and provide named kwargs (dictionary) for additional query params
         Uses prepared statements to prevent injection
@@ -41,53 +41,49 @@ class Interface:
         :exception null_op:
         :return:
         """
+        print(command, kwargs["keywords"], kwargs["name"])
         sql = None
-        if command == "get highest grossing movie for all directors":
-            sql = """
-                select directors.id, first_name, last_name, title, max(gross) from directors
-                join movies on directors.id = movies.director_id
-                group by first_name, last_name
-                order by max(gross)
-            """
-        elif command == "get total budget for all directors":
-            sql = """
-                select first_name, last_name, sum(budget) as 'Total Budget'
-                from directors
-                join movies on directors.id = movies.director_id
-                group by first_name, last_name
-                order by sum(budget) desc
-            """
-        elif command == "get all movies by director":
-            sql = """
-                select title from movies
-                join directors on movies.director_id = ?
-                group by title
-            """
-            curr = self.conn.cursor()
-            curr.execute(sql, (str(kwargs["id"])))
-            return curr.fetchall()
-        elif command == "net profit":
-            if kwargs["director"]:
-                sql = """
-                    select sum(gross - budget) as "Net Profit" from movies
-                    join directors on movies.director_id = directors.id
-                    where first_name = ? and last_name = ?
-                """
+
+        if command.command == "net":
+            if kwargs["keywords"][1] == "director":
+                if kwargs["keywords"][0] == "profit":
+                    sql = """
+                        select sum(gross - budget) as "Net Profit" from movies
+                        join directors on movies.director_id = directors.id
+                        where first_name = ? and last_name = ?
+                    """
+                elif kwargs["keywords"][0] == "budget":
+                    sql = """
+                        select first_name, last_name, sum(budget) as 'Total Budget'
+                        from directors
+                        join movies on directors.id = movies.director_id
+                        where first_name = ? and last_name = ?
+                    """
                 curr = self.conn.cursor()
-                name = kwargs["director"].split(" ")
+                name = kwargs["name"].split(" ")
                 if len(name) > 2:
                     name = [" ".join([name[0], name[1]]).strip(), name[2]]
-                else:
+                elif len(name) == 2:
                     name = [name[0], name[1]]
+                else:
+                    name = name[0]
                 curr.execute(sql, (name[0], name[1]))
                 return curr.fetchall()
-
-        if command is not None:
-            curr = self.conn.cursor()
-            curr.execute(sql)
-            return curr.fetchall()
-        else:
-            raise Exception("Invalid operation!")
+            elif kwargs["keywords"][1] == "movie":
+                if kwargs["keywords"][0] == "profit":
+                    sql = """
+                        select sum(gross - budget) as "Net Profit" from movies
+                        where title = ?
+                    """
+                elif kwargs["keywords"][0] == "budget":
+                    sql = """
+                        select budget from movies
+                        where title = ?
+                    """
+                curr = self.conn.cursor()
+                print("The kwargs name: ", kwargs["name"])
+                curr.execute(sql, kwargs["name"])
+                return curr.fetchall()
 
     def toggle_debug(self):
         self.DEBUG = not self.DEBUG

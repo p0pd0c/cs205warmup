@@ -1,36 +1,10 @@
-import enum
-from dataclasses import dataclass
-from enum import Enum
 import shlex
-
-
-class ArgsType(Enum):
-    Date = 1
-    Name = 2
-
-
-@dataclass
-class Arg:
-    type: ArgsType
-    required: bool
-
-
-@dataclass
-class Group:
-    keywords: list[str]
-
-
-@dataclass
-class BaseCommand:
-    command: str
-    groups: list[Group]
-    # hasArg: bool
-    args: list[Arg]
+from CommandTypes import ArgsType, Arg, Group, BaseCommand
+from sqlnterface import Interface
 
 
 class Parser:
-
-    def __init__(self, sql_interface):
+    def __init__(self, sql_interface: Interface):
         self.commands = [
             BaseCommand("net", [Group(["budget", "profit"]), Group(["director", "movie"])], [Arg(ArgsType.Name, True)]),
 
@@ -50,12 +24,16 @@ class Parser:
             BaseCommand("least successful", [Group(["movie", "director"])], []),
         ]
 
-    def get_next_command(self):
-        raw_input = input("> ")
+        self.sql_interface = sql_interface
 
     def process_command(self, raw_command):
+        valid_command = False
+        intended_command = None
+        command_data = {"keywords": []}
         for base_command in self.commands:
             if raw_command.startswith(base_command.command):
+                valid_command = True
+                intended_command = base_command
                 print(shlex.split(raw_command[len(base_command.command) + 1: len(raw_command)]))
                 words = shlex.split(raw_command[len(base_command.command) + 1: len(raw_command)])
                 # raw_command[len(base_command.command) + 1: len(raw_command)].split(' ')
@@ -69,6 +47,7 @@ class Parser:
                     for keyword in group.keywords:
                         if words[i] == keyword:
                             print("Found keyword:", keyword)
+                            command_data["keywords"].append(keyword)
                             correct_groups[i] = True
 
                 if not (correct_groups == [True] * len(base_command.groups)):
@@ -84,11 +63,33 @@ class Parser:
                     elif arg.type == ArgsType.Name:
                         # parse director and movie name
                         print("Parse Name...")
+                        command_data["name"] = "Christopher Nolan"
                         pass
-                return
+        if valid_command:
+            return self.sql_interface.select(intended_command, **command_data)
+        else:
+            print("The command you entered was invalid...")
+            print("The following are valid base commands: ")
+            for cmd in self.commands:
+                print(cmd.command)
+
+    def get_next_command(self):
+        raw_input = input("> ")
+        if raw_input == "quit":
+            return "quit"
+
+        result = self.process_command(raw_input)
+        if result is not None:
+            print(result)
 
 
-Parser(None).process_command('net budget movie "The Shawshank Redemption"')
-Parser(None).process_command('how many directors')
-Parser(None).process_command('how many made by "Christopher Nolan"')
-Parser(None).process_command('movies after "June 10 2010"')
+def main():
+    interface = Interface("IM.db")
+    Parser(interface).process_command('net budget movie "The Shawshank Redemption"')
+    Parser(interface).process_command('how many directors')
+    Parser(interface).process_command('how many made by "Christopher Nolan"')
+    Parser(interface).process_command('movies after "June 10 2010"')
+
+
+if __name__ == "__main__":
+    main()
