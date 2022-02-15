@@ -113,7 +113,40 @@ class Interface:
                 curr = self.conn.cursor()
                 curr.execute(sql)
                 return curr.fetchall()[0]
-
+        elif command.command == "newest":
+            if kwargs["keywords"][0] == "director":
+                sql = """
+                    select first_name, last_name from directors
+                    order by age asc
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql)
+                return curr.fetchall()[0]
+            if kwargs["keywords"][0] == "movie":
+                sql = """
+                    select title from movies
+                    order by year desc
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql)
+                return curr.fetchall()[0]
+        elif command.command == "movies":
+            if kwargs["keywords"][0] == "before":
+                sql = """
+                    select title from movies 
+                    where year < ?
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql, [kwargs["date"]])
+                return curr.fetchall()
+            elif kwargs["keywords"][0] == "after":
+                sql = """
+                    select title from movies
+                    where year > ?
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql, [kwargs["date"]])
+                return curr.fetchall()
         return None
 
     def split_name(self, inpt):
