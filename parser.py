@@ -22,6 +22,8 @@ class Parser:
 
             BaseCommand("most successful", [Group(["movie", "director"])], []),
             BaseCommand("least successful", [Group(["movie", "director"])], []),
+
+            BaseCommand("load data", [], [])
         ]
 
         self.sql_interface = sql_interface
@@ -80,6 +82,11 @@ class Parser:
                     command_data[arg.type.value] = words[index]
 
             if valid_command:
+
+                # Specific case for load data command
+                if intended_command.command == "load data":
+                    return self.sql_interface.load_data()
+
                 # Stop after first valid command, since some base commands share words with
                 # others so order is important.
                 print("Command sent to sql with data: ", command_data)
@@ -89,15 +96,19 @@ class Parser:
         return None
 
     def get_next_command(self):
+        # Get raw input
         raw_input = input("> ")
+
         if raw_input == "quit":
             return "quit"
 
         result = self.process_command(raw_input)
         if result is not None:
+            # prints result from sql interface
             print(result)
 
         else:
+            # Displays help message
             print("The command you entered was invalid...")
             print("The following are valid base commands: ")
 
@@ -109,15 +120,3 @@ class Parser:
 
                 # Bit of mess but, in one line :), f strings are cool
                 print(f'{cmd.command} {" ".join(f"[ {slash.join(group.keywords)} ]" for group in groups)} {" ".join(f"{quote}{arg.type.value}{quote}" for arg in args)}')
-
-
-def main():
-    interface = Interface("IM.db")
-    Parser(interface).process_command('net movie "The Shawshank Redemption"')
-    # Parser(interface).process_command('how many directors')
-    # Parser(interface).process_command('how many made "Christopher Nolan"')
-    # Parser(interface).process_command('movies after 2010')
-
-
-if __name__ == "__main__":
-    main()
