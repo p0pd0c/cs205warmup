@@ -106,7 +106,7 @@ class Parser:
                     raise DataNotLoadedError("Data must be loaded first!")
 
         # No valid command found to match with raw command
-        return None, None
+        raise InvalidCommandError("No command found")
 
     def pretty_print(self, result, base_command):
         # add special case for load data since returns a simple string
