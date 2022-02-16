@@ -1,3 +1,4 @@
+import csv
 import sqlite3
 from sqlite3 import Error
 from CommandTypes import ArgsType, Arg, Group, BaseCommand
@@ -10,8 +11,18 @@ class Interface:
 
     def __init__(self, db_file):
         try:
+            # create connection to the database, store it in the instance
             self.conn = sqlite3.connect(db_file)
 
+            # check if the tables exist, otherwise data is not loaded
+            curr = self.conn.cursor()
+            curr.execute("""
+                select count(name) from sqlite_schema 
+                where type in ('table') and name not like 'sqlite_%';
+            """)
+            num_tables = curr.fetchall()[0]
+            if num_tables == 2:
+                self.data_loaded = True
             if self.DEBUG:
                 print(sqlite3.version)
         except Error as e:
@@ -193,4 +204,40 @@ class Interface:
         self.conn.close()
 
     def load_data(self):
-        pass
+        if not self.data_loaded:
+            curr = self.conn.cursor()
+            curr.executescript("""
+                CREATE TABLE movies(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    year INTEGER NOT NULL,
+                    title CHAR(32) NOT NULL,
+                    gross LONG INTEGER NOT NULL,
+                    budget LONG INTEGER NOT NULL,
+                    director_id INTEGER,
+                    FOREIGN KEY(director_id) REFERENCES directors(id)
+                );
+    
+                CREATE TABLE directors(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    first_name CHAR(32) NOT NULL,
+                    last_name CHAR(32) NOT NULL,
+                    movies_made INTEGER NOT NULL, age INTEGER NOT NULL
+                );
+            """)
+            with open("CS224_Warmup_Project_Data_-_movies.csv", newline="") as movies_file:
+                movies_reader = csv.reader(movies_file, delimiter=",")
+                curr.executemany("""
+                                    INSERT INTO movies VALUES(?,?,?,?,?,?)
+                                """, movies_reader[1:])
+                movies_file.close()
+            with open("CS224_Warmup_Project_Data_-_directors.csv", newline="") as directors_file:
+                directors_reader = csv.reader(directors_file, delimiter=",")
+                curr.executemany("""
+                                    INSERT INTO directors VALUES(?,?,?,?,?)
+                                """, directors_reader[1:])
+                directors_file.close()
+            self.conn.commit()
+            self.data_loaded = True
+            return True
+        else:
+            return False
