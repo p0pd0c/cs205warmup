@@ -6,10 +6,12 @@ from CommandTypes import ArgsType, Arg, Group, BaseCommand
 class Interface:
     DEBUG = False
     conn = None
+    data_loaded = False
 
     def __init__(self, db_file):
         try:
             self.conn = sqlite3.connect(db_file)
+
             if self.DEBUG:
                 print(sqlite3.version)
         except Error as e:
@@ -189,3 +191,6 @@ class Interface:
 
     def close_connection(self):
         self.conn.close()
+
+    def load_data(self):
+        pass
