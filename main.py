@@ -12,11 +12,11 @@ def main():
         try:
             user_input = parser.get_next_command()
         except DataNotLoadedError:
-            print("handle data not loaded error...")
+            print("The data is not loaded. Type command 'load data' then try again")
         except SQLInterfaceError:
-            print("handle SQL interface error....")
+            print("Error with SQL interface")
         except InvalidCommandError:
-            print("handle invalid command error...")
+            display_help(self, result)
 
     interface.close_connection()
 
