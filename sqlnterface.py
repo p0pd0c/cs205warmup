@@ -5,7 +5,7 @@ from CommandTypes import ArgsType, Arg, Group, BaseCommand
 
 
 class Interface:
-    DEBUG = False
+    DEBUG = True
     conn = None
     data_loaded = False
 
@@ -20,9 +20,13 @@ class Interface:
                 select count(name) from sqlite_schema 
                 where type in ('table') and name not like 'sqlite_%';
             """)
-            num_tables = curr.fetchall()[0]
+            num_tables = curr.fetchall()[0][0]
+            self.DEBUG and print("Number of tables: ", num_tables)
             if num_tables == 2:
+                self.DEBUG and print("Tables detected")
                 self.data_loaded = True
+            else:
+                self.DEBUG and print("Tables not detected")
             if self.DEBUG:
                 print(sqlite3.version)
         except Error as e:
@@ -204,6 +208,7 @@ class Interface:
         self.conn.close()
 
     def load_data(self):
+        self.DEBUG and print("Data loaded: ", self.data_loaded)
         if not self.data_loaded:
             curr = self.conn.cursor()
             curr.executescript("""
@@ -224,18 +229,22 @@ class Interface:
                     movies_made INTEGER NOT NULL, age INTEGER NOT NULL
                 );
             """)
-            with open("CS224_Warmup_Project_Data_-_movies.csv", newline="") as movies_file:
+            with open("CS205_Warmup_Project_Data-movies.csv", newline="") as movies_file:
                 movies_reader = csv.reader(movies_file, delimiter=",")
+                movies_reader = list(movies_reader)
                 curr.executemany("""
                                     INSERT INTO movies VALUES(?,?,?,?,?,?)
                                 """, movies_reader[1:])
                 movies_file.close()
-            with open("CS224_Warmup_Project_Data_-_directors.csv", newline="") as directors_file:
+                self.DEBUG and print("Loaded data from movies file")
+            with open("CS205_Warmup_Project_Data-directors.csv", newline="") as directors_file:
                 directors_reader = csv.reader(directors_file, delimiter=",")
+                directors_reader = list(directors_reader)
                 curr.executemany("""
                                     INSERT INTO directors VALUES(?,?,?,?,?)
                                 """, directors_reader[1:])
                 directors_file.close()
+                self.DEBUG and print("Loaded data from directors file")
             self.conn.commit()
             self.data_loaded = True
             return True
