@@ -24,3 +24,15 @@ class BaseCommand:
     groups: list[Group]
     # hasArg: bool
     args: list[Arg]
+
+
+class SQLInterfaceError(Exception):
+    pass
+
+
+class DataNotLoadedError(Exception):
+    pass
+
+
+class InvalidCommandError(Exception):
+    pass
