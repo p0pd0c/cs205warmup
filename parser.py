@@ -8,6 +8,8 @@ class Parser:
         self.commands = [
             BaseCommand("net", [Group(["budget", "profit"]), Group(["director", "movie"])], [Arg(ArgsType.Name, True)]),
 
+            BaseCommand("get", [Group(["movies", "directors"])], []),
+
             BaseCommand("how many made by", [], [Arg(ArgsType.Name, True)]),
             BaseCommand("how many", [Group(["directors", "movies"])], []),
 
