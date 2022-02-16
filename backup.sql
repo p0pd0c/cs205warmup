@@ -1,0 +1,89 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE movies(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+year INTEGER NOT NULL,
+title CHAR(32) NOT NULL,
+gross LONG INTEGER NOT NULL,
+budget LONG INTEGER NOT NULL,
+director_id INTEGER,
+FOREIGN KEY(director_id) REFERENCES directors(id));
+INSERT INTO movies VALUES(1,1994,'The Shawshank Redemption',28699976,25000000,1);
+INSERT INTO movies VALUES(2,1972,'The Godfather',246120986,6000000,2);
+INSERT INTO movies VALUES(3,2008,'The Dark Knight',1005973645,185000000,3);
+INSERT INTO movies VALUES(4,1999,'Fight Club',101209702,101209702,4);
+INSERT INTO movies VALUES(5,2010,'Inception',836836967,160000000,3);
+INSERT INTO movies VALUES(6,1999,'The Matrix',467222728,63000000,5);
+INSERT INTO movies VALUES(7,1957,'12 Angry Men',2000000,337000,6);
+INSERT INTO movies VALUES(8,2019,'Parasite',263020130,11400000,7);
+INSERT INTO movies VALUES(9,1993,'Schindler''s List',322161245,22000000,8);
+INSERT INTO movies VALUES(10,1985,'Back to the Future',381906762,19000000,9);
+INSERT INTO movies VALUES(11,1994,'Pulp Fiction',213928762,8000000,14);
+INSERT INTO movies VALUES(12,1936,'Modern Times',458676,1500000,10);
+INSERT INTO movies VALUES(13,1979,'Apocalypse Now',92158064,31500000,2);
+INSERT INTO movies VALUES(14,2008,'WALL-E',521311890,180000000,11);
+INSERT INTO movies VALUES(15,1980,'The Shining',46998772,19000000,12);
+INSERT INTO movies VALUES(16,2019,'Joker',1074419384,55000000,13);
+INSERT INTO movies VALUES(17,2014,'Interstellar',701729206,165000000,3);
+INSERT INTO movies VALUES(18,2019,'Avengers: Endgame',2797501328,356000000,15);
+INSERT INTO movies VALUES(19,2013,'The Wolf of Wall Street',393000694,100000000,16);
+INSERT INTO movies VALUES(20,2021,'Dune',398270424,165000000,17);
+INSERT INTO movies VALUES(21,2021,'The Worst Person in the World',4981748,5000000,18);
+INSERT INTO movies VALUES(22,2021,'Licorice Pizza',17037552,345157,19);
+INSERT INTO movies VALUES(23,2019,'Knives Out',311605581,40000000,20);
+INSERT INTO movies VALUES(24,2021,'West Side Story',60759035,100000000,8);
+INSERT INTO movies VALUES(25,1984,'Ghostbusters',296578797,30000000,21);
+INSERT INTO movies VALUES(26,2019,'The Gentlemen',115171795,22000000,22);
+INSERT INTO movies VALUES(27,2014,'Kingsman: The Secret Service',414351546,81000000,23);
+INSERT INTO movies VALUES(28,2021,'Sing 2',242553860,85000000,24);
+INSERT INTO movies VALUES(29,2001,'Harry Potter and the Sorcerer''s Stone',1017662278,125000000,25);
+INSERT INTO movies VALUES(30,2019,'Once Upon a Time... In Hollywood',374565754,90000000,14);
+INSERT INTO movies VALUES(31,2017,'Phantom Thread',47756590,35000000,19);
+INSERT INTO movies VALUES(32,2021,'The Last Duel',30552111,10853945,26);
+INSERT INTO movies VALUES(33,2021,'Nightmare Alley',14569790,9820514,27);
+INSERT INTO movies VALUES(34,2021,'No Time to Die',774153007,250000000,28);
+INSERT INTO movies VALUES(35,2021,'Nobody',55405035,16000000,29);
+INSERT INTO movies VALUES(36,2021,'Belfast',10226785,7078815,30);
+INSERT INTO movies VALUES(37,2021,'Encanto',228405321,50000000,31);
+INSERT INTO movies VALUES(38,1996,'Scream',173046663,14000000,32);
+CREATE TABLE directors(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+first_name CHAR(32) NOT NULL,
+last_name CHAR(32) NOT NULL,
+movies_made INTEGER NOT NULL, age INTEGER NOT NULL);
+INSERT INTO directors VALUES(1,'Frank','Darabont',14,63);
+INSERT INTO directors VALUES(2,'Francis Ford','Coppola',82,36);
+INSERT INTO directors VALUES(3,'Christopher','Nolan',51,17);
+INSERT INTO directors VALUES(4,'David','Fincher',60,94);
+INSERT INTO directors VALUES(5,'Wachowski','Sisters',55,14);
+INSERT INTO directors VALUES(6,'Sidney','Lumet',87,75);
+INSERT INTO directors VALUES(7,'Bong','Ho',52,16);
+INSERT INTO directors VALUES(8,'Steven','Spielberg',76,57);
+INSERT INTO directors VALUES(9,'Robert','Zemeckis',70,33);
+INSERT INTO directors VALUES(10,'Charles','Chaplin',88,72);
+INSERT INTO directors VALUES(11,'Andrew','Stanton',56,15);
+INSERT INTO directors VALUES(12,'Stanley','Kubrick',70,16);
+INSERT INTO directors VALUES(13,'Todd','Phillips',51,16);
+INSERT INTO directors VALUES(14,'Quentin','Tarantino',59,21);
+INSERT INTO directors VALUES(15,'Anthony','Russo',52,24);
+INSERT INTO directors VALUES(16,'Martin','Scorsese',80,68);
+INSERT INTO directors VALUES(17,'Denis','Villeneuve',55,24);
+INSERT INTO directors VALUES(18,'Joachim','Trier',48,9);
+INSERT INTO directors VALUES(19,'Paul Thomas','Anderson',52,48);
+INSERT INTO directors VALUES(20,'Rian','Johnson',49,17);
+INSERT INTO directors VALUES(21,'Ivan','Reitman',76,25);
+INSERT INTO directors VALUES(22,'Guy','Ritchie',54,29);
+INSERT INTO directors VALUES(23,'Matthew','Vaughn',51,10);
+INSERT INTO directors VALUES(24,'Garth','Jennings',50,32);
+INSERT INTO directors VALUES(25,'Chris','Columbus',64,22);
+INSERT INTO directors VALUES(26,'Ridley','Scott',85,57);
+INSERT INTO directors VALUES(27,'Guillermo del','Toro',58,22);
+INSERT INTO directors VALUES(28,'Cary Joji','Fukunaga',45,14);
+INSERT INTO directors VALUES(29,'Ilya','Naishuller',39,12);
+INSERT INTO directors VALUES(30,'Kenneth','Branagh',62,23);
+INSERT INTO directors VALUES(31,'Jared','Bush',48,3);
+INSERT INTO directors VALUES(32,'Wes','Craven',76,36);
+DELETE FROM sqlite_sequence;
+INSERT INTO sqlite_sequence VALUES('directors',32);
+INSERT INTO sqlite_sequence VALUES('movies',38);
+COMMIT;
