@@ -104,7 +104,7 @@ class Interface:
                 """
                 curr = self.conn.cursor()
                 curr.execute(sql)
-                return curr.fetchall()[0]
+                return [curr.fetchall()[0]]
             elif kwargs["keywords"][0] == "movie":
                 sql = """
                     select title from movies
@@ -112,7 +112,7 @@ class Interface:
                 """
                 curr = self.conn.cursor()
                 curr.execute(sql)
-                return curr.fetchall()[0]
+                return [curr.fetchall()[0]]
         elif command.command == "newest":
             if kwargs["keywords"][0] == "director":
                 sql = """
@@ -121,7 +121,7 @@ class Interface:
                 """
                 curr = self.conn.cursor()
                 curr.execute(sql)
-                return curr.fetchall()[0]
+                return [curr.fetchall()[0]]
             if kwargs["keywords"][0] == "movie":
                 sql = """
                     select title from movies
@@ -129,7 +129,7 @@ class Interface:
                 """
                 curr = self.conn.cursor()
                 curr.execute(sql)
-                return curr.fetchall()[0]
+                return [curr.fetchall()[0]]
         elif command.command == "movies":
             if kwargs["keywords"][0] == "before":
                 sql = """
@@ -146,6 +146,31 @@ class Interface:
                 """
                 curr = self.conn.cursor()
                 curr.execute(sql, [kwargs["date"]])
+                return curr.fetchall()
+        elif command.command == "budget":
+            sql = """
+                select budget from movies
+                where title = ?
+            """
+            curr = self.conn.cursor()
+            curr.execute(sql, [kwargs["name"]])
+            return curr.fetchall()
+        elif command.command == "most successful":
+            if kwargs["keywords"][0] == "movie":
+                sql = """
+                    select title, max(gross) from movies
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql)
+                return curr.fetchall()
+            elif kwargs["keywords"][0] == "director":
+                sql = """
+                    select first_name, last_name, sum(gross) from movies
+                    join directors on movies.director_id = directors.id
+                    order by sum(gross) desc
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql)
                 return curr.fetchall()
         return None
 
