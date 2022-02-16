@@ -1,6 +1,7 @@
 import shlex
 from CommandTypes import ArgsType, Arg, Group, BaseCommand, SQLInterfaceError, DataNotLoadedError, InvalidCommandError
 from sqlnterface import Interface
+from pprint import pprint
 
 
 class Parser:
@@ -110,7 +111,7 @@ class Parser:
 
     def pretty_print(self, result, base_command):
         # add special case for load data since returns a simple string
-        print(result)
+        pprint(result)
         print("from command: ", base_command)
 
     def display_help(self, result):
