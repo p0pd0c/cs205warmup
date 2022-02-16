@@ -1,3 +1,4 @@
+from CommandTypes import SQLInterfaceError, InvalidCommandError, DataNotLoadedError
 from parser import Parser
 from sqlnterface import Interface
 
@@ -7,7 +8,16 @@ def main():
     parser = Parser(interface)
     user_input = ""
     while user_input != "quit":
-        user_input = parser.get_next_command()
+
+        try:
+            user_input = parser.get_next_command()
+        except DataNotLoadedError:
+            print("handle data not loaded error...")
+        except SQLInterfaceError:
+            print("handle SQL interface error....")
+        except InvalidCommandError:
+            print("handle invalid command error...")
+
     interface.close_connection()
 
 
