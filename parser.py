@@ -44,12 +44,12 @@ class Parser:
                 intended_command = base_command
 
                 # Shlex debug
-                print("Shlex Parse: ", shlex.split(raw_command[len(base_command.command) + 1: len(raw_command)])) if self.sql_interface.DEBUG else None
+                self.sql_interface.DEBUG and print("Shlex Parse: ", shlex.split(raw_command[len(base_command.command) + 1: len(raw_command)]))
 
                 words = shlex.split(raw_command[len(base_command.command) + 1: len(raw_command)])
 
                 # Words debug
-                print("Words: ", words) if self.sql_interface.DEBUG else None
+                self.sql_interface.DEBUG and print("Words: ", words)
 
                 # Returns None if command does not have enough arguments and keywords
                 if len(words) < len(base_command.groups) + len(base_command.args):
@@ -64,7 +64,7 @@ class Parser:
                     for keyword in group.keywords:
                         if words[i] == keyword:
                             # keyword debug
-                            print("Found keyword:", keyword) if self.sql_interface.DEBUG else None
+                            self.sql_interface.DEBUG and print("Found keyword:", keyword)
 
                             # Adds keyword to command_data to send to sql_interface
                             command_data["keywords"].append(keyword)
@@ -80,7 +80,7 @@ class Parser:
                     raise InvalidCommandError("Incorrect argument order")
 
                 # Display valid command debug
-                print("Valid Command...") if self.sql_interface.DEBUG else None
+                self.sql_interface.DEBUG and print("Valid Command...")
 
                 # Parse all arguments using their type given in BaseCommands
                 for index, arg in enumerate(base_command.args):
@@ -90,25 +90,30 @@ class Parser:
 
                 # Specific case for load data command
                 if intended_command.command == "load data":
-                    return self.sql_interface.load_data()
+                    if self.sql_interface.load_data():
+                        return "Data has been loaded!", base_command
+                    else:
+                        return "Data is already loaded!", base_command
 
                 if self.sql_interface.data_loaded:
                     # Stop after first valid command, since some base commands share words with
                     # others so order is important.
-                    print("Command sent to sql with data: ", command_data) if self.sql_interface.DEBUG else None
-                    return self.sql_interface.select(intended_command, **command_data)
+                    self.sql_interface.DEBUG and print("Command sent to sql with data: ", command_data)
+                    return self.sql_interface.select(intended_command, **command_data), base_command
 
                 else:
                     # Raise exception to be caught by main
                     raise DataNotLoadedError("Data must be loaded first!")
 
         # No valid command found to match with raw command
-        return None
+        raise InvalidCommandError("No command found")
 
-    def pretty_print(self):
-        pass
+    def pretty_print(self, result, base_command):
+        # add special case for load data since returns a simple string
+        print(result)
+        print("from command: ", base_command)
 
-    def display_help(self):
+    def display_help(self, result):
         print("The command you entered was invalid...")
         print("The following are valid base commands: ")
 
@@ -130,10 +135,10 @@ class Parser:
             return "quit"
 
         # gets result from sql interface
-        result = self.process_command(raw_input)
+        result, base_command = self.process_command(raw_input)
         if result is not None:
             # prints result from sql interface
-            print(result)
+            self.pretty_print(result, base_command)
 
         else:
             raise SQLInterfaceError
