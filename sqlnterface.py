@@ -22,12 +22,15 @@ class Interface:
                 select count(name) from sqlite_schema 
                 where type in ('table') and name not like 'sqlite_%';
             """)
+            # The result is from a fetchall, so we want the first element in the first list
             num_tables = curr.fetchall()[0][0]
             self.DEBUG and print("Number of tables: ", num_tables)
+            # one table is for movies and the other is for directors
             if num_tables == 2:
                 self.DEBUG and print("Tables detected")
                 self.data_loaded = True
             else:
+                # don't automatically load the data, the user can choose to do this
                 self.DEBUG and print("Tables not detected")
             if self.DEBUG:
                 print(sqlite3.version)
@@ -44,7 +47,10 @@ class Interface:
         :return:
         """
         self.DEBUG and print(command, kwargs)
+        # used to check if we have a valid base command from the interface (useful for checking compatability)
         sql = None
+
+        # match the command to the sql function
         if command.command == "toggle debug":
             self.DEBUG = not self.DEBUG
             return []
@@ -230,6 +236,12 @@ class Interface:
         return None
 
     def split_name(self, inpt):
+        """
+        Helper function that splits names into two parts i.e. "Francis Ford Coppola" -> ["Francis Ford", "Coppola"] and
+        splits "Frank Darabont" -> ["Frank", "Darabont"]
+        :param inpt:
+        :return:
+        """
         name = inpt.split(" ")
         if len(name) > 2:
             name = [" ".join([name[0], name[1]]).strip(), name[2]]
@@ -240,15 +252,30 @@ class Interface:
         return name
 
     def toggle_debug(self):
+        """
+        Toggle whether the debug statements print in the interface and in parser
+        :return:
+        """
         self.DEBUG = not self.DEBUG
 
     def close_connection(self):
+        """
+        Terminate connection with the database
+        :return:
+        """
         self.conn.close()
 
     def load_data(self):
+        """
+        Load data will return True if data_loaded is False, and it will load the data into the sqlite Database
+        Returns False if data_loaded is True, i.e. the data is already loaded
+        :return:
+        """
         self.DEBUG and print("Data loaded: ", self.data_loaded)
+        # if the data has not been loaded
         if not self.data_loaded:
             curr = self.conn.cursor()
+            # sql to create tables
             curr.executescript("""
                 CREATE TABLE movies(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -267,6 +294,7 @@ class Interface:
                     movies_made INTEGER NOT NULL, age INTEGER NOT NULL
                 );
             """)
+            # read in rows from the csv files and use executemany to put them all in the db
             with open("CS205_Warmup_Project_Data-movies.csv", newline="") as movies_file:
                 movies_reader = csv.reader(movies_file, delimiter=",")
                 movies_reader = list(movies_reader)
