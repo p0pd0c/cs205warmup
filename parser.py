@@ -115,9 +115,16 @@ class Parser:
             print("${:,}".format(result[0][0]))
 
         if base_command.command == "get":
-            for x in result:
-                for y in x:
-                    print(y)
+            if len(result) == 1:
+                for x in result:
+                    for y in x:
+                        print(y)
+
+            else:
+                for x in result:
+                    for y in x:
+                        print(y,end=" ")
+                    print()
 
         if base_command.command == "how many made by":
             print(result[0][0])
