@@ -1,11 +1,11 @@
 import csv
 import sqlite3
 from sqlite3 import Error
-from CommandTypes import ArgsType, Arg, Group, BaseCommand
+from CommandTypes import BaseCommand
 
 
 class Interface:
-    DEBUG = True
+    DEBUG = False
     conn = None
     data_loaded = False
 
@@ -41,7 +41,7 @@ class Interface:
         :exception null_op:
         :return:
         """
-        print(command, kwargs)
+        self.DEBUG and print(command, kwargs)
         sql = None
 
         if command.command == "net":
