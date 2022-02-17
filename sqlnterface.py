@@ -43,7 +43,9 @@ class Interface:
         """
         self.DEBUG and print(command, kwargs)
         sql = None
-
+        if command.command == "toggle debug":
+            self.DEBUG = not self.DEBUG
+            return []
         if command.command == "net":
             if kwargs["keywords"][1] == "director":
                 if kwargs["keywords"][0] == "profit":

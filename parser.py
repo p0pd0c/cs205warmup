@@ -26,7 +26,8 @@ class Parser:
             BaseCommand("most successful", [Group(["movie", "director"])], []),
             BaseCommand("least successful", [Group(["movie", "director"])], []),
 
-            BaseCommand("load data", [], [])
+            BaseCommand("load data", [], []),
+            BaseCommand("toggle debug", [], [])
         ]
 
         self.sql_interface = sql_interface
