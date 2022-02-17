@@ -16,7 +16,7 @@ def main():
         except SQLInterfaceError:
             print("Error with SQL interface")
         except InvalidCommandError:
-            display_help(self, result)
+            parser.display_help()
 
     interface.close_connection()
 

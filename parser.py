@@ -114,7 +114,7 @@ class Parser:
         pprint(result)
         print("from command: ", base_command)
 
-    def display_help(self, result):
+    def display_help(self):
         print("The command you entered was invalid...")
         print("The following are valid base commands: ")
 
