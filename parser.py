@@ -114,7 +114,7 @@ class Parser:
         print(result)
         # print("from command: ", base_command)
         if base_command.command == "net":
-            print("$", result[0][0],sep="")
+            print("${:,}".format(result[0][0]))
 
         if base_command.command == "get":
             for x in result:
@@ -148,7 +148,7 @@ class Parser:
                     print(y)
 
         if base_command.command == "budget":
-            print("$",result[0][0],sep="")
+            print("${:,}".format(result[0][0]))
 
         if base_command.command == "most successful":
             print(result[0][0])
