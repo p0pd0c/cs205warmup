@@ -154,7 +154,7 @@ class Parser:
             for x in result:
                 for i in range(len(x)):
                     if i == len(x)-1:
-                        print("${:,}".format(x[i]))
+                        print("${:,}".format(x[i]), end="")
                     else:
                         print(x[i], end=" ")
             print()
