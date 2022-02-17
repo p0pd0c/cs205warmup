@@ -1,7 +1,6 @@
 import shlex
 from CommandTypes import ArgsType, Arg, Group, BaseCommand, SQLInterfaceError, DataNotLoadedError, InvalidCommandError
 from sqlnterface import Interface
-from pprint import pprint
 
 
 class Parser:
@@ -111,8 +110,51 @@ class Parser:
 
     def pretty_print(self, result, base_command):
         # add special case for load data since returns a simple string
-        pprint(result)
-        print("from command: ", base_command)
+        print(result)
+        # print("from command: ", base_command)
+        if base_command.command == "net":
+            print("$", result[0][0],sep="")
+
+        if base_command.command == "get":
+            for x in result:
+                for y in x:
+                    print(y)
+
+        if base_command.command == "how many made by":
+            print(result[0][0])
+
+        if base_command.command == "how many":
+            print(result[0][0])
+
+        if base_command.command == "which movies by":
+            for x in result:
+                for y in x:
+                    print(y)
+
+        if base_command.command == "oldest":
+            for x in result:
+                for y in x:
+                    print(y)
+
+        if base_command.command == "newest":
+            for x in result:
+                for y in x:
+                    print(y)
+
+        if base_command.command == "movies":
+            for x in result:
+                for y in x:
+                    print(y)
+
+        if base_command.command == "budget":
+            print("$",result[0][0],sep="")
+
+        if base_command.command == "most successful":
+            print(result[0][0])
+
+        if base_command.command == "least successful":
+            print(result[0][0])
+
 
     def display_help(self):
         print("The command you entered was invalid...")
