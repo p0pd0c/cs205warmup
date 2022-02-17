@@ -110,9 +110,7 @@ class Parser:
         raise InvalidCommandError("No command found")
 
     def pretty_print(self, result, base_command):
-        # add special case for load data since returns a simple string
-        print(result)
-        # print("from command: ", base_command)
+
         if base_command.command == "net":
             print("${:,}".format(result[0][0]))
 
@@ -135,12 +133,14 @@ class Parser:
         if base_command.command == "oldest":
             for x in result:
                 for y in x:
-                    print(y)
+                    print(y,end=" ")
+            print()
 
         if base_command.command == "newest":
             for x in result:
                 for y in x:
-                    print(y)
+                    print(y, end=" ")
+            print()
 
         if base_command.command == "movies":
             for x in result:
@@ -150,11 +150,17 @@ class Parser:
         if base_command.command == "budget":
             print("${:,}".format(result[0][0]))
 
-        if base_command.command == "most successful":
-            print(result[0][0])
+        if base_command.command == "least successful" or base_command.command == "most successful":
+            for x in result:
+                for i in range(len(x)):
+                    if i == len(x)-1:
+                        print("${:,}".format(x[i]))
+                    else:
+                        print(x[i], end=" ")
+            print()
 
-        if base_command.command == "least successful":
-            print(result[0][0])
+        if base_command.command == "load data":
+            print(result)
 
 
     def display_help(self):
