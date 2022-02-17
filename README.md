@@ -56,3 +56,7 @@ There are many more commands supported by the query engine, and if you ever forg
 help me please!
 ```
 
+And to quit the shell
+```
+quit
+```
