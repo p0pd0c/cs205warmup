@@ -75,8 +75,23 @@ class Interface:
                         where title = ?
                     """
                 curr = self.conn.cursor()
-                print("The kwargs name: ", kwargs["name"])
+                self.DEBUG and print("The kwargs name: ", kwargs["name"])
                 curr.execute(sql, [kwargs["name"]])
+                return curr.fetchall()
+        elif command.command == "get":
+            if kwargs["keywords"][0] == "movies":
+                sql = """
+                    select title from movies
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql)
+                return curr.fetchall()
+            elif kwargs["keywords"][0] == "directors":
+                sql = """
+                    select first_name, last_name from directors
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql)
                 return curr.fetchall()
         elif command.command == "how many made by":
             sql = """
@@ -185,6 +200,23 @@ class Interface:
                     select first_name, last_name, sum(gross) from movies
                     join directors on movies.director_id = directors.id
                     order by sum(gross) desc
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql)
+                return curr.fetchall()
+        elif command.command == "least successful":
+            if kwargs["keywords"][0] == "movie":
+                sql = """
+                    select title, min(gross) from movies
+                """
+                curr = self.conn.cursor()
+                curr.execute(sql)
+                return curr.fetchall()
+            elif kwargs["keywords"][0] == "director":
+                sql = """
+                    select first_name, last_name, sum(gross) from movies
+                    join directors on movies.director_id = directors.id
+                    order by sum(gross) asc
                 """
                 curr = self.conn.cursor()
                 curr.execute(sql)
