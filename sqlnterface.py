@@ -16,6 +16,8 @@ class Interface:
 
             # check if the tables exist, otherwise data is not loaded
             curr = self.conn.cursor()
+            # we do this by checking the master table for any tables that are not prepended with sqlite_
+            # we know the data is loaded if the tables exist
             curr.execute("""
                 select count(name) from sqlite_schema 
                 where type in ('table') and name not like 'sqlite_%';
@@ -201,11 +203,12 @@ class Interface:
                 sql = """
                     select first_name, last_name, sum(gross) from movies
                     join directors on movies.director_id = directors.id
+                    group by first_name, last_name
                     order by sum(gross) desc
                 """
                 curr = self.conn.cursor()
                 curr.execute(sql)
-                return curr.fetchall()
+                return [curr.fetchall()[0]]
         elif command.command == "least successful":
             if kwargs["keywords"][0] == "movie":
                 sql = """
@@ -218,11 +221,12 @@ class Interface:
                 sql = """
                     select first_name, last_name, sum(gross) from movies
                     join directors on movies.director_id = directors.id
+                    group by first_name, last_name
                     order by sum(gross) asc
                 """
                 curr = self.conn.cursor()
                 curr.execute(sql)
-                return curr.fetchall()
+                return [curr.fetchall()[0]]
         return None
 
     def split_name(self, inpt):
